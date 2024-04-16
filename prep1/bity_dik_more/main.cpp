@@ -4,6 +4,9 @@
 #include <mbed.h>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 #define R 0b00000001
 #define W 0b00000000
@@ -117,6 +120,8 @@ public:
 
 //////////////////////////////////////////////////
 
+char g_buf[256] = {0};
+
 int main(void) {
     i2c_init();
     Radio rad();
@@ -125,32 +130,36 @@ int main(void) {
     led.bar(4);
 
 	uint8_t l_status[8] = {0};
-	uint16_t l_freq = 0;
+	double l_freq = 0.f;
 	
 	while(1) {
 		if(g_but_PTC9 && !g_but_PTC11) {
 			l_ack = rad.set_volume(rad.get_volume() + 1);	
-			if(!l_ack) printf("OK :: up %d\n", rad.get_volume());
+			if(!l_ack) 
+                printf("OK :: Volume Up %d\n", rad.get_volume());
 		}
 
 		if(g_but_PTC9 && !g_but_PTC10) {
 			l_ack = rad.set_volume(rad.get_volume() - 1);	
-			if(!l_ack) printf("OK :: down %d\n", rad.get_volume());
+			if(!l_ack) 
+                printf("OK :: Volume Down %d\n", rad.get_volume());
 		}
 
 		if(!g_but_PTC9 && !g_but_PTC10) {
 			l_ack = rad.search_freq();	
-			if(!l_ack) printf("OK :: searching\n");
+			if(!l_ack) 
+                printf("OK :: searching\n");
 		}
 
 		if(!g_but_PTC9 && !g_but_PTC11) {
 			l_ack = rad.get_tune_status(l_status, 8);	
-			if(!l_ack) printf("OK :: getting status\n");
-			
-			l_freq = (l_status[2] << 8) + l_status[3];
-            
-			printf("f = %d.%d MHz\n", 
-                l_status[2] / 100, l_status[3] % 100);
+			if(!l_ack) 
+                printf("OK :: getting status\n");
+
+            sprintf(g_buf, "%d.%d", l_status[2] / 100, l_status[3] % 100);
+			l_freq = atof(g_buf);
+			printf("f = %d.%d MHz -> %lf\n", 
+                l_status[2] / 100, l_status[3] % 100, l_freq);
 		}
 		
 		if(g_but_PTC9 && !g_but_PTC12) {
