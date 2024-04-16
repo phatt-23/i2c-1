@@ -148,9 +148,9 @@ int main(void) {
 			if(!l_ack) printf("OK :: getting status\n");
 			
 			l_freq = (l_status[2] << 8) + l_status[3];
-
-			printf("f (MHz) = %d -> %.2x\n", l_freq, l_freq);
-			printf("fh = %x\n fl = %x\n", l_status[2], l_status[3]);
+            
+			printf("f = %d.%d MHz\n", 
+                l_status[2] / 100, l_status[3] % 100);
 		}
 		
 		if(g_but_PTC9 && !g_but_PTC12) {
